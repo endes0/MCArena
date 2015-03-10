@@ -1,34 +1,5 @@
 PlayerSelection = {}
 
-function OnPluginsLoaded()
-	PlayersInArena = {}
-	cRoot:Get():ForEachPlayer(function(Player)
-		PlayersInArena = {}
-		Player:SetGameMode(gmCreative)
-		Player:TeleportToCoords(Player:GetWorld():GetSpawnX(), Player:GetWorld():GetSpawnY(), Player:GetWorld():GetSpawnZ())
-		Player:SetCurrentExperience(0)
-		Player:Heal(1337)
-	end
-	)
-end
-
-function OnPlayerDestroyed(Player)
-	PlayersInArena[Player:GetName()] = nil
-end
-
-function OnPlayerSpawned(Player)
-	-- Confiscate any barrier blocks as they crash 1.7.10 clients
-	for c = 0, 39, 1 do
-		if Player:GetInventory():GetSlot(c).m_ItemType == E_BLOCK_BARRIER then
-			Player:GetInventory():SetSlot(c, cItem())
-		end
-	end
-	Player:SetGameMode(gmCreative)
-	Player:TeleportToCoords(Player:GetWorld():GetSpawnX(), Player:GetWorld():GetSpawnY(), Player:GetWorld():GetSpawnZ())
-	Player:SetCurrentExperience(0)
-	Player:Heal(1337)
-end
-
 -- If Player is in survival, do not let him break blocks
 function OnPlayerBreakBlock(Player)
 	if Player:GetGameMode() == gmSurvival and
@@ -107,8 +78,22 @@ function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, Action)
 	end
 end
 
+function OnTakeDamage(Entity, TDI)
+	if Entity:IsPlayer() == true and TDI.Attacker:IsPlayer() == true then
+		if TDI.Attacker:IsPlayer() == true then
+			if IsPlayerInArena(Entity) == true and IsPlayerInArena(TDI.Attacker) == false then
+				TDI.Attacker:SendMessageWarn("You cannot interfere with arena battles!")
+				return true
+			end
+		end
+	end
+	return false
+end
+
 function OnKilling(Victim, Killer)
 	if Victim:IsPlayer() == true then
-		PlayersInArena[Victim:GetName()] = nil
+		if IsPlayerInArena(Victim) == true then
+			RemovePlayer(Victim)
+		end
 	end
 end

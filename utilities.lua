@@ -1,24 +1,17 @@
 function IsPlayerInArena(Player)
-	-- If a player entry exists in PlayersInArena, then the given Player exists in game
-	if PlayersInArena ~= nil and
-	PlayersInArena[Player:GetName()] ~= nil then
-		return true
-	else
-		-- Or else thats a lie
-		return false
+	for _, k in pairs(Arenas) do
+		for n, l in pairs(k.Players) do
+			if Player:GetName() == l.Name then
+				return true
+			end
+		end
 	end
+	return false
 end
 
-function GetPlayerArenaName(Player)
-	if PlayersInArena ~= nil and
-	IsPlayerInArena(Player) == true then
-		return PlayersInArena[Player:GetName()]["arena"]
-	end
-end
-
-function GetNumberOfPlayersInArena(ArenaName)
-	return 0--Arenas[GetArenaIDFromName(ArenaName)]["numplayers"]
-end
+--function GetNumberOfPlayersInArena(ArenaName)
+	--return 0--Arenas[GetArenaIDFromName(ArenaName)]["numplayers"]
+--end
 
 --function PollNumberOfPlayersInArenas(World)
 	--for c = 0, GetNumberOfArenas() - 1 do
@@ -33,3 +26,24 @@ end
 	--	)
 	--end
 --end
+
+function protect(tbl)  
+    return setmetatable({}, {  
+        __index = tbl,  
+        __newindex = function(t, key, value)  
+            error("attempting to change constant " ..  
+                   tostring(key) .. " to " .. tostring(value), 2)  
+        end  
+    })  
+end  
+
+-- Not sure why I need this, but it seems to work...
+function CopyVector(Vector)
+	t = {}
+	setmetatable(t, {})
+	t[1] = Vector.x
+	t[2] = Vector.y
+	t[3] = Vector.z
+	s = Vector3d(t[1], t[2], t[3])
+	return s
+end

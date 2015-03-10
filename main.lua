@@ -1,7 +1,5 @@
 PLUGIN = nil
 
-PlayersInArena = {}
-
 local clock = os.clock
 
 local Name = "MCArena Beta"
@@ -20,12 +18,9 @@ function Initialize(Plugin)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_BREAKING_BLOCK, OnPlayerBreakBlock)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_PLACING_BLOCK, OnPlayerPlaceBlock)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_MOVING, OnPlayerMoving)
-	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_DESTROYED, OnPlayerDestroyed)
-	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_SPAWNED, OnPlayerSpawned)
 	cPluginManager:AddHook(cPluginManager.HOOK_WORLD_TICK, OnWorldTick)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_LEFT_CLICK, OnPlayerLeftClick)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_RIGHT_CLICK, OnPlayerRightClick)
-	cPluginManager:AddHook(cPluginManager.HOOK_PLUGINS_LOADED, OnPluginsLoaded)
 	cPluginManager:AddHook(cPluginManager.HOOK_KILLING, OnKilling)
 	
 	-- Command Binds
@@ -42,8 +37,6 @@ function Initialize(Plugin)
 	LoadConfig()
 	LoadArenas()
 
-	OnPluginsLoaded()
-	
 	LOG("Initialized " .. Plugin:GetName() .. " v0." .. Plugin:GetVersion())
 	return true
 end
@@ -64,8 +57,13 @@ function TPLobby(Split, Player)
 	return true
 end
 
--- Put Player in the arena and add him to PlayersInArena table
+-- Put Player in the arena and add him to an arena
 function PlayerJoinArena(Split, Player)
+	if IsPlayerInArena(Player) then
+		Player:SendMessageInfo("You cannot do that during combat!")
+		return true
+	end	
+
 	-- Refuse to let him tp to an arena if he is already in a brawl
 	--if IsPlayerInArena(Player) == true then
 	--	Player:SendMessageInfo("You can not do that during combat!")
@@ -88,9 +86,6 @@ function PlayerJoinArena(Split, Player)
 	Player:SetGameMode(gmSurvival)
 	Player:Heal(1337)
 	Player:Feed(20, 1337)
-
-	-- Set player stats
-	PlayersInArena[Player:GetName()] = {}
 
 	AddPlayerToArena(Split[2], Player)
 

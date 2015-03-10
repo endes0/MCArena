@@ -25,30 +25,25 @@ function LoadArenas()
 	end
 
 	for c = 0, ArenaIniFile:GetNumKeys() - 1 do
-		local m_Arena = Arena:new()
-		m_Arena:SetName(ArenaIniFile:GetKeyName(c))
-		local Min = Vector3f()
-			Min.x = ArenaIniFile:GetValueF(m_Arena.Name, "MinX")
-			Min.y = ArenaIniFile:GetValueF(m_Arena.Name, "MinY")
-			Min.z = ArenaIniFile:GetValueF(m_Arena.Name, "MinZ")
-		local Max = Vector3f()
-			Max.x = ArenaIniFile:GetValueF(m_Arena.Name, "MaxX")
-			Max.y = ArenaIniFile:GetValueF(m_Arena.Name, "MaxY")
-			Max.z = ArenaIniFile:GetValueF(m_Arena.Name, "MaxZ")
-		local SpecWarp = Vector3f()
-			SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
-			SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
-			SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")	
-		m_Arena:SetBoundingBox(Min, Max)
-		m_Arena:SetSpectatorWarp(SpecWarp)
-		LOG(Min.x)
-		LOG(Min.y)
-		LOG(Min.z)
-		LOG(Max.x)
-		LOG(Max.y)
-		LOG(Max.z)
-		LOG("")
-		table.insert(Arenas, m_Arena)
+		if DoesArenaExist(ArenaIniFile:GetKeyName(c)) == false then
+			local m_Arena = Arena:new()
+			m_Arena:SetName(ArenaIniFile:GetKeyName(c))
+			local Min = Vector3f()
+				Min.x = ArenaIniFile:GetValueF(m_Arena.Name, "MinX")
+				Min.y = ArenaIniFile:GetValueF(m_Arena.Name, "MinY")
+				Min.z = ArenaIniFile:GetValueF(m_Arena.Name, "MinZ")
+			local Max = Vector3f()
+				Max.x = ArenaIniFile:GetValueF(m_Arena.Name, "MaxX")
+				Max.y = ArenaIniFile:GetValueF(m_Arena.Name, "MaxY")
+				Max.z = ArenaIniFile:GetValueF(m_Arena.Name, "MaxZ")
+			local SpecWarp = Vector3f()
+				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
+				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
+				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")	
+			m_Arena:SetBoundingBox(Min, Max)
+			m_Arena:SetSpectatorWarp(SpecWarp)
+			table.insert(Arenas, m_Arena)
+		end
 	end
 end
 
@@ -147,4 +142,15 @@ function GetArenaByName(ArenaName)
 		end
 	end
 	return nil
+end
+
+function RemovePlayer(Player)
+	for _, k in pairs(Arenas) do
+		for n, l in pairs(k.Players) do
+			if Player:GetName() == l.Name then
+				table.remove(k.Players, n)
+				l:RestoreInfo(Player)
+			end
+		end
+	end
 end
