@@ -48,10 +48,10 @@ end
 
 function TPLobby(Split, Player)
 	-- Refuse to let him tp to lobby if he is already in a fight
-	--if IsPlayerInArena(Player) == true then
-	--	Player:SendMessageInfo("You can not do that during combat!")
-	--	return true
-	--end
+	if IsPlayerInArena(Player) == true then
+		Player:SendMessageInfo("You can not do that during combat!")
+		return true
+	end
 	-- Get Lobby coords and tp to that
 	Player:TeleportToCoords(Lobby["x"], Lobby["y"], Lobby["z"])
 	return true
@@ -62,34 +62,27 @@ function PlayerJoinArena(Split, Player)
 	if IsPlayerInArena(Player) then
 		Player:SendMessageInfo("You cannot do that during combat!")
 		return true
-	end	
-
-	-- Refuse to let him tp to an arena if he is already in a brawl
-	--if IsPlayerInArena(Player) == true then
-	--	Player:SendMessageInfo("You can not do that during combat!")
-	--	return true
-	--end
+	end
 	
+	if IsPlayerInQueue(Player) == true then
+		Player:SendMessageInfo("You're already in the queue!")
+		return true
+	end
+
 	-- No arena defined
 	if Split[2] == nil then
-		Player:SendMessageInfo("You gotta tell me which arena you want to join.  D:  Do '/listarenas' to list the names of all the arenas")
+		Player:SendMessageInfo("Please choose a kit!")
 		return true
 	end
-	
-	-- Arena does not exist
-	if DoesArenaExist(Split[2]) == false then
-		Player:SendMessage("That arena does not exist!  Do '/listarenas' to list the names of all the arenas")
-		return true
-	end
-	
-	-- Set gamemode and reset stats
-	Player:SetGameMode(gmSurvival)
-	Player:Heal(1337)
-	Player:Feed(20, 1337)
 
-	AddPlayerToArena(Split[2], Player)
+	local NewPlayerData = {}
+	NewPlayerData.Name = Player:GetName()
+	NewPlayerData.Kit = Split[2]
 
-	GiveKit(Player)
+	AddPlayerToQueue(NewPlayerData)
+
+	Player:SendMessageSuccess(cChatColor.LightBlue .. "You have joined the queue!")
+
 	return true
 end
 
@@ -109,6 +102,5 @@ function PlayerSpectateArena(Split, Player)
 end
 
 function GiveKit(Player)
-	Player:GetInventory():Clear()
 	Player:GetInventory():AddItem(cItem(E_ITEM_DIAMOND_SWORD))
 end

@@ -4,6 +4,7 @@ ConfigIniFile = cIniFile()
 Arenas = {}
 ArenaNames = {}
 Lobby = {}
+PlayerQueue = {}
 
 function LoadConfig()
 	if ConfigIniFile:ReadFile("Plugins/MCArena/config.ini") == false then
@@ -113,6 +114,10 @@ function SetLobby(Split, Player)
 	return true
 end
 
+function AddPlayerToQueue(PlayerDataTable)
+	table.insert(PlayerQueue, PlayerDataTable)
+end
+
 function DoesArenaExist(ArenaName)
 	for _, k in pairs(Arenas) do
 		if k:GetName() == ArenaName then
@@ -150,7 +155,33 @@ function RemovePlayer(Player)
 			if Player:GetName() == l.Name then
 				table.remove(k.Players, n)
 				l:RestoreInfo(Player)
+				Player:SendMessage(cChatColor.Navy .. "You have been eliminated!")
 			end
 		end
+	end
+end
+
+function GetNumberInQueue()
+	return #PlayerQueue
+end
+
+function BroadcastToQueue(String)
+	for _, k in pairs(PlayerQueue) do
+		cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
+			Player:SendMessage(String)
+		end
+		)
+	end
+end
+
+function DumpQueueToArena()
+	local ArenaSelection = math.random(1, GetNumberOfArenas())
+	
+	for _, k in pairs(PlayerQueue) do
+		cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
+			AddPlayerToArena(Arenas[ArenaSelection].Name, Player)
+		end
+		)
+		PlayerQueue = {}
 	end
 end

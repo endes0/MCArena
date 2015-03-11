@@ -14,16 +14,14 @@ function OnWorldTick(World, TimeDelta)
 	if World:IsWeatherSunny() == false then
 		World:SetWeather(wSunny)
 	end
-	
-	--PollNumberOfPlayersInArenas(World)
-	--for c = 0, GetNumberOfArenas() do
-	--	if GetNumberOfPlayersInArena(GetArenaNameFromID(c)) <= 0 then
-	--		--Make Arena available		
-	--	end
-	--end
 
 	for _, CurrentArena in pairs(Arenas) do
 		CurrentArena:KeepPlayersInBounds()
+	end
+
+	if GetNumberInQueue() > 1 then
+		BroadcastToQueue(cChatColor.LightPurple .. "You have been matched!")
+		DumpQueueToArena()
 	end
 end
 
