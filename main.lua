@@ -28,7 +28,7 @@ function Initialize(Plugin)
 	cPluginManager.BindCommand("/joinarena", "mcarena.join", PlayerJoinArena, " - Get in there you maggot.")
 	cPluginManager.BindCommand("/specarena", "mcarena.spectate", PlayerSpectateArena, " - Get in there you maggot.")
 	cPluginManager.BindCommand("/listarenas", "mcarena.list", ListArenas, " - Gotta find a place to settle scores first.")
-	cPluginManager.BindCommand("/createarena", "mcarena.createarena", CreateArena, " - Gotta have a place to settle your issues right?")
+	cPluginManager.BindCommand("/createarena", "mcarena.create", CreateArena, " - Gotta have a place to settle your issues right?")
 	
 	-- Continue
 

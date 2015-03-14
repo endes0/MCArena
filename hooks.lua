@@ -46,6 +46,10 @@ function OnPlayerPlaceBlock(Player)
 end
 
 function OnPlayerLeftClick(Player, BlockX, BlockY, BlockZ, BlockFace, Action)
+	if DoesPlayerHavePermissionToEdit(Player) == false then
+		return false
+	end	
+
 	if PlayerSelection[Player:GetName()] == nil then
 		PlayerSelection[Player:GetName()] = {}
 	end
@@ -63,6 +67,10 @@ function OnPlayerLeftClick(Player, BlockX, BlockY, BlockZ, BlockFace, Action)
 end
 
 function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, Action)
+	if DoesPlayerHavePermissionToEdit(Player) == false then
+		return false
+	end	
+
 	if BlockFace == BLOCK_FACE_NONE then
 		return true	
 	end

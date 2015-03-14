@@ -81,3 +81,14 @@ function CopyTable(Table)
 	self.__index = self
 	return t
 end
+
+function DoesPlayerHavePermissionToEdit(Player)
+	local permissions = Player:GetPermissions()
+	for _, k in pairs(permissions) do
+		if k == "mcarena.create" or
+		k == "*" then
+			return true
+		end
+	end
+	return false
+end
