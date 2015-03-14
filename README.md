@@ -22,7 +22,7 @@ The arena will automatically set itself up.
 Use the following to join the arena
 # /joinarena <KIT NAME>
 
-You must also be an Admin to create these arenas.
+You must also be an Admin or have the mcarena.create permission to create these arenas.
 
 Have fun.  :)
 
@@ -43,7 +43,7 @@ Each item MUST have an amount specifier.  This is correct:
 
 This gives 16 command blocks on arena entry.
 
-Example kit:
+Example kit - 
 
 [Archer]
 item1=261
