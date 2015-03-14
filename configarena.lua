@@ -1,23 +1,12 @@
 ArenaIniFile = cIniFile()
-ConfigIniFile = cIniFile()
+KitIniFile = cIniFile()
 
 Arenas = {}
-ArenaNames = {}
+Kits = {}
 Lobby = {}
 PlayerQueue = {}
 
-function LoadConfig()
-	if ConfigIniFile:ReadFile("Plugins/MCArena/config.ini") == false then
-		LOG("Main config file does not exist or is empty, generating a new one")
-		ConfigIniFile:WriteFile("Plugins/MCArena/config.ini")
-	end
-	
-	ConfigIniFile:ReadFile("Plugins/MCArena/config.ini")
-	
-	Lobby["x"] = ConfigIniFile:GetValueF("lobby", "LobbyX")
-	Lobby["y"] = ConfigIniFile:GetValueF("lobby", "LobbyY")
-	Lobby["z"] = ConfigIniFile:GetValueF("lobby", "LobbyZ")
-end
+QueueWaiting = false
 
 function LoadArenas()
 	if ArenaIniFile:ReadFile("Plugins/MCArena/arenas.ini") == false then
@@ -44,6 +33,34 @@ function LoadArenas()
 			m_Arena:SetBoundingBox(Min, Max)
 			m_Arena:SetSpectatorWarp(SpecWarp)
 			table.insert(Arenas, m_Arena)
+		end
+	end
+end
+
+function LoadKits()
+	if KitIniFile:ReadFile("Plugins/MCArena/kits.ini") == false then
+		LOG("Kit config file does not exist or is empty, generating a new one")
+		-- If no kits exist, this function creates default kit
+		KitIniFile:AddKeyName("default")
+		KitIniFile:SetValueI("default", "item1", E_ITEM_DIAMOND_SWORD, true)
+		KitIniFile:SetValueI("default", "amount1", 1, true)
+		KitIniFile:WriteFile("Plugins/MCArena/kits.ini")
+		-- End default kit
+	end
+
+	for c = 0, KitIniFile:GetNumKeys() - 1 do
+		if DoesKitExist(KitIniFile:GetKeyName(c)) == false then
+			local m_Kit = Kit:new()
+			m_Kit:SetName(KitIniFile:GetKeyName(c))
+			for i = 0, (KitIniFile:GetNumValues(c) - 1) / 2 do
+				local itemID = KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(i+1))
+				local itemAmount = KitIniFile:GetValueI(m_Kit:GetName(), "amount" .. tostring(i+1))
+				
+				for c = 1, itemAmount do
+					m_Kit:AddItem(itemID)
+				end
+			end
+			table.insert(Kits, m_Kit)
 		end
 	end
 end
@@ -98,26 +115,6 @@ function CreateArena(Split, Player)
 	return true
 end
 
-function SetLobby(Split, Player)
-	ConfigIniFile:ReadFile("Plugins/MCArena/config.ini")
-	
-	ConfigIniFile:DeleteKey("lobby")
-	ConfigIniFile:AddKeyName("lobby")
-	ConfigIniFile:SetValue("lobby", "LobbyX", Player:GetPosX())
-	ConfigIniFile:SetValue("lobby", "LobbyY", Player:GetPosY())
-	ConfigIniFile:SetValue("lobby", "LobbyZ", Player:GetPosZ())
-	
-	ConfigIniFile:WriteFile("Plugins/MCArena/config.ini")
-	LoadConfig()
-	
-	Player:SendMessageSuccess("Set lobby position successfully!")
-	return true
-end
-
-function AddPlayerToQueue(PlayerDataTable)
-	table.insert(PlayerQueue, PlayerDataTable)
-end
-
 function DoesArenaExist(ArenaName)
 	for _, k in pairs(Arenas) do
 		if k:GetName() == ArenaName then
@@ -127,10 +124,19 @@ function DoesArenaExist(ArenaName)
 	return false
 end
 
-function AddPlayerToArena(ArenaName, Player)
+function DoesKitExist(KitName)
+	for _, k in pairs(Kits) do
+		if k:GetName() == KitName then
+			return true
+		end
+	end
+	return false
+end
+
+function AddPlayerToArena(ArenaName, PlayerData)
 	for _, k in pairs(Arenas) do
 		if k:GetName() == ArenaName then
-			k:AddPlayer(Player)
+			k:AddPlayer(PlayerData)
 			return true
 		end			
 	end
@@ -140,15 +146,7 @@ function GetNumberOfArenas()
 	return #Arenas
 end
 
-function GetArenaByName(ArenaName)
-	for _, k in pairs(Arenas) do
-		if k:GetName() == ArenaName then
-			return k
-		end
-	end
-	return nil
-end
-
+-- Remove player from arena if is currently in one
 function RemovePlayer(Player)
 	for _, k in pairs(Arenas) do
 		for n, l in pairs(k.Players) do
@@ -161,27 +159,12 @@ function RemovePlayer(Player)
 	end
 end
 
-function GetNumberInQueue()
-	return #PlayerQueue
-end
-
-function BroadcastToQueue(String)
-	for _, k in pairs(PlayerQueue) do
-		cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
-			Player:SendMessage(String)
-		end
-		)
-	end
-end
-
+-- Dump all waiting players into the same randomly chosen arena and empty queue line
 function DumpQueueToArena()
 	local ArenaSelection = math.random(1, GetNumberOfArenas())
 	
 	for _, k in pairs(PlayerQueue) do
-		cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
-			AddPlayerToArena(Arenas[ArenaSelection].Name, Player)
-		end
-		)
-		PlayerQueue = {}
+		AddPlayerToArena(Arenas[ArenaSelection].Name, k)
 	end
+	PlayerQueue = {}
 end

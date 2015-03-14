@@ -1,3 +1,5 @@
+-- Arena object that resides in the Arenas table
+-- Represents the arena data loaded from the arenas.ini file
 Arena = {
 	Name = "",
 	BoundingBox = nil,
@@ -8,14 +10,21 @@ Arena = {
 	Players = {}
 }
 
+-- Temporarily holds the Player's previous game data such as:
+-- health, XP, hunger, previous position.
 APlayer = {
 	PreviousPosition = Vector3d(),
-	PreviousArmor = {},
 	PreviousInventory = {},
-	PreviousHotbar = {},
 	PreviousHealth = 0,
 	PreviousHunger = 0,
-	PreviousXP = 0
+	PreviousXP = 0,
+	KitName = ""
+}
+
+-- A predefined "inventory" that is given to the player upon joining an arena
+Kit = {
+	Name = "",
+	Items = {}
 }
 
 function Arena:new()
@@ -23,6 +32,8 @@ function Arena:new()
 	setmetatable(o, Arena)
 	self.__index = self
 	o.Players = {}
+	setmetatable(o.Players, Arena.Players)
+	self.Players.__index = self.Players
 	return o
 end
 
@@ -30,9 +41,19 @@ function APlayer:new()
 	local o = {}
 	setmetatable(o, APlayer)
 	self.__index = self
-	o.PreviousArmor = {}
 	o.PreviousInventory = {}
-	o.PreviousInventory = {}
+	setmetatable(o.PreviousInventory, APlayer.PreviousInventory)
+	self.PreviousInventory.__index = self.PreviousInventory
+	return o
+end
+
+function Kit:new()
+	local o = {}
+	setmetatable(o, Kit)
+	self.__index = self
+	o.Items = {}
+	setmetatable(o.Items, Kit.Items)
+	self.Items.__index = self.Items
 	return o
 end
 
@@ -90,25 +111,33 @@ function Arena:KeepPlayersInBounds()
 	end
 end
 
-function Arena:AddPlayer(Player)
+function Arena:AddPlayer(PlayerData)
 	for _, a_PlayerName in pairs(self.Players) do
-		if Player:GetName() == a_PlayerName.Name then
+		if PlayerData.Name == a_PlayerName.Name then
 			return true
 		end
 	end
 	local a_Player = APlayer:new()
-	a_Player:CopyInfo(Player)	
+	cRoot:Get():FindAndDoWithPlayer(PlayerData.Name, function(Player)
+		a_Player:CopyInfo(Player)
+	end
+	)
+	a_Player:AssignKit(PlayerData.Kit)	
 	table.insert(self.Players, a_Player)
 
-	-- Set gamemode and reset stats
-	Player:SetGameMode(gmSurvival)
-	Player:Heal(1337)
-	Player:Feed(20, 1337)
-	Player:SetCurrentExperience(0)
-	Player:GetInventory():Clear()
-	Player:TeleportToCoords(self:GetCenter().x, self:GetCenter().y, self:GetCenter().z)
+	cRoot:Get():FindAndDoWithPlayer(PlayerData.Name, function(Player)
+		-- Set gamemode and reset stats
+		Player:SetGameMode(gmSurvival)
+		Player:Heal(1337)
+		Player:Feed(20, 1337)
+		Player:SetCurrentExperience(0)
+		Player:GetInventory():Clear()
+		Player:TeleportToCoords(self:GetCenter().x, self:GetCenter().y, self:GetCenter().z)
 
-	GiveKit(Player)
+		-- Give assigned kit
+		GiveKit(Player, PlayerData.Kit)
+	end
+	)
 end
 
 function Arena:GetCenter()
@@ -133,8 +162,33 @@ function APlayer:RestoreInfo(Player)
 	Player:SetFoodLevel(self.PreviousHunger)
 	Player:SetCurrentExperience(self.PreviousXP)
 	Player:StopBurning()
+
+	-- This will be fixed when I reimplenemt inventory states.
+	Player:GetInventory():Clear()
+end
+
+function APlayer:AssignKit(KitName)
+	if DoesKitExist(KitName) then	
+		self.KitName = KitName
+	end
+end
+
+function APlayer:GetKit()
+	return self.KitName
 end
 
 function Arena:GetNumberOfPlayers()
 	return #self.Players
+end
+
+function Kit:SetName(NewName)
+	self.Name = NewName
+end
+
+function Kit:GetName()
+	return self.Name
+end
+
+function Kit:AddItem(ItemID)
+	table.insert(self.Items, ItemID)
 end

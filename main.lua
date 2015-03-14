@@ -29,13 +29,11 @@ function Initialize(Plugin)
 	cPluginManager.BindCommand("/specarena", "mcarena.spectate", PlayerSpectateArena, " - Get in there you maggot.")
 	cPluginManager.BindCommand("/listarenas", "mcarena.list", ListArenas, " - Gotta find a place to settle scores first.")
 	cPluginManager.BindCommand("/createarena", "mcarena.createarena", CreateArena, " - Gotta have a place to settle your issues right?")
-	cPluginManager.BindCommand("/tplobby", "arena.tplobby", TPLobby, " - So I heard you like coffee.")
-	cPluginManager.BindCommand("/setlobby", "arena.setlobby", SetLobby, " - Don't forget the coffee maker.  :D")
 	
 	-- Continue
 
-	LoadConfig()
 	LoadArenas()
+	LoadKits()
 
 	LOG("Initialized " .. Plugin:GetName() .. " v0." .. Plugin:GetVersion())
 	return true
@@ -46,18 +44,7 @@ function OnDisable()
 	LOG("Disabled " .. Name .. "!")
 end
 
-function TPLobby(Split, Player)
-	-- Refuse to let him tp to lobby if he is already in a fight
-	if IsPlayerInArena(Player) == true then
-		Player:SendMessageInfo("You can not do that during combat!")
-		return true
-	end
-	-- Get Lobby coords and tp to that
-	Player:TeleportToCoords(Lobby["x"], Lobby["y"], Lobby["z"])
-	return true
-end
-
--- Put Player in the arena and add him to an arena
+-- Put Player in the arena and add him to the queue
 function PlayerJoinArena(Split, Player)
 	if IsPlayerInArena(Player) then
 		Player:SendMessageInfo("You cannot do that during combat!")
@@ -75,6 +62,11 @@ function PlayerJoinArena(Split, Player)
 		return true
 	end
 
+	if DoesKitExist(Split[2]) == false then
+		Player:SendMessageInfo("That kit does not exist!  Use /listkits to print a list of avaliable kits!")
+		return true
+	end
+
 	local NewPlayerData = {}
 	NewPlayerData.Name = Player:GetName()
 	NewPlayerData.Kit = Split[2]
@@ -86,7 +78,7 @@ function PlayerJoinArena(Split, Player)
 	return true
 end
 
--- List arenas (FIX THIS)
+-- List arenas
 function ListArenas(Split, Player)
 	Player:SendMessage("Arenas: ")
 	for _, k in pairs(Arenas) do		
@@ -101,6 +93,15 @@ function PlayerSpectateArena(Split, Player)
 	return true
 end
 
-function GiveKit(Player)
-	Player:GetInventory():AddItem(cItem(E_ITEM_DIAMOND_SWORD))
+-- Give selected kit to player (FIX THIS)
+function GiveKit(Player, KitName)	
+	local a_Kit = GetKitByName(KitName)	
+	Player:GetInventory():Clear()
+	for _, k in pairs(Kits) do
+		if k:GetName() == KitName then
+			for n, l in pairs(a_Kit.Items) do
+				Player:GetInventory():AddItem(cItem(l))
+			end
+		end
+	end
 end

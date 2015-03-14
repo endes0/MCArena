@@ -19,9 +19,16 @@ function OnWorldTick(World, TimeDelta)
 		CurrentArena:KeepPlayersInBounds()
 	end
 
-	if GetNumberInQueue() > 1 then
-		BroadcastToQueue(cChatColor.LightPurple .. "You have been matched!")
-		DumpQueueToArena()
+	if GetNumberInQueue() > 1 and QueueWaiting == false then
+		QueueWaiting = true
+		BroadcastToQueue(cChatColor.LightPurple .. "Other players have joined the queue, ")
+		BroadcastToQueue(cChatColor.LightPurple .. "waiting for other potential players...")		
+		World:ScheduleTask(300, function()
+			BroadcastToQueue(cChatColor.LightPurple .. "You have been matched!")
+			DumpQueueToArena()
+			QueueWaiting = false
+		end
+		)
 	end
 end
 
