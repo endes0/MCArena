@@ -111,6 +111,10 @@ function CopyTable(Table)
 	return t
 end
 
+function CopycItem(Item)
+	return cItem(Item)
+end
+
 function DoesPlayerHavePermissionToEdit(Player)
 	local permissions = Player:GetPermissions()
 	for _, k in pairs(permissions) do

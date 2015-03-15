@@ -14,7 +14,9 @@ Arena = {
 -- health, XP, hunger, previous position.
 APlayer = {
 	PreviousPosition = Vector3d(),
+	PreviousArmor = {},
 	PreviousInventory = {},
+	PreviousHotbar = {},
 	PreviousHealth = 0,
 	PreviousHunger = 0,
 	PreviousXP = 0,
@@ -41,9 +43,15 @@ function APlayer:new()
 	local o = {}
 	setmetatable(o, APlayer)
 	self.__index = self
+	o.PreviousArmor = {}
+	setmetatable(o.PreviousArmor, APlayer.PreviousArmor)
+	self.PreviousArmor.__index = self.PreviousArmor
 	o.PreviousInventory = {}
 	setmetatable(o.PreviousInventory, APlayer.PreviousInventory)
 	self.PreviousInventory.__index = self.PreviousInventory
+	o.PreviousHotbar = {}
+	setmetatable(o.PreviousHotbar, APlayer.PreviousHotbar)
+	self.PreviousHotbar.__index = self.PreviousHotbar
 	return o
 end
 
@@ -130,7 +138,6 @@ function Arena:AddPlayer(PlayerData)
 		Player:Heal(1337)
 		Player:Feed(20, 1337)
 		Player:SetCurrentExperience(0)
-		Player:GetInventory():Clear()
 
 		local X, Z
 		
@@ -173,6 +180,16 @@ function APlayer:CopyInfo(Player)
 	self.PreviousHealth = Player:GetHealth()
 	self.PreviousHunger = Player:GetFoodLevel()
 	self.PreviousXP = Player:GetCurrentXp()
+
+	for c = 0, 3 do
+		self.PreviousArmor[c] = CopycItem(Player:GetInventory():GetArmorSlot(c))
+	end
+	for d = 0, 26 do
+		self.PreviousInventory[d] = CopycItem(Player:GetInventory():GetInventorySlot(d))
+	end
+	for e = 0, 8 do
+		self.PreviousHotbar[e] = CopycItem(Player:GetInventory():GetHotbarSlot(e))
+	end
 end
 
 function APlayer:RestoreInfo(Player)
@@ -182,8 +199,15 @@ function APlayer:RestoreInfo(Player)
 	Player:SetCurrentExperience(self.PreviousXP)
 	Player:StopBurning()
 
-	-- This will be fixed when I reimplenemt inventory states.
-	Player:GetInventory():Clear()
+	for c = 0, 3 do
+		Player:GetInventory():SetArmorSlot(c, self.PreviousArmor[c])
+	end
+	for d = 0, 26 do
+		Player:GetInventory():SetInventorySlot(d, self.PreviousInventory[d])
+	end
+	for e = 0, 8 do
+		Player:GetInventory():SetHotbarSlot(e, self.PreviousHotbar[e])
+	end
 end
 
 function APlayer:AssignKit(KitName)
