@@ -45,7 +45,9 @@ This gives 16 command blocks on arena entry.
 
 Example kit:
 
-[Archer]
+(The < > are supposed to be square brackets, but GitHub does not alow that formatting...)
+
+<Archer>
 *item1=261
 *amount1=1
 *item2=262
