@@ -7,9 +7,9 @@ Player inventories are NOT saved between arena matches.  Take this into consider
 
 #CREATING AN ARENA
 Use the golden pickaxe to edit your arenas.
-Left Click = First position
-Right Click = Second position
-Shift+Click = Spectator teleport position
+  *Left Click = First position
+  *Right Click = Second position
+  *Shift+Click = Spectator teleport position
 
 This is almost exactly the same as WorldEdit.
 The defined cuboid will be the area of the arena.
