@@ -41,11 +41,4 @@ Each item MUST have an amount specifier.  This is correct:
 * item1 = 137
 * amount1 = 16
 
-This gives 16 command blocks on arena entry.
-
-Example kit =
-
-*item1=261
-*amount1=1
-*item2=262
-*amount2=64
+This will give 16 Command Blocks to the player under that kit on entry.
