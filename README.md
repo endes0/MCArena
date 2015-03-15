@@ -43,11 +43,8 @@ Each item MUST have an amount specifier.  This is correct:
 
 This gives 16 command blocks on arena entry.
 
-Example kit:
+Example kit =
 
-(The colons are supposed to be square brackets, but GitHub does not alow that formatting...)
-
-:Archer:
 *item1=261
 *amount1=1
 *item2=262
