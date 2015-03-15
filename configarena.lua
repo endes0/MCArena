@@ -29,7 +29,9 @@ function LoadArenas()
 			local SpecWarp = Vector3f()
 				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
 				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
-				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")	
+				SpecWarp.x = ArenaIniFile:GetValueF(m_Arena.Name, "SpecX")
+			local w = ArenaIniFile:GetValue(m_Arena.Name, "World")	
+			m_Arena:SetWorld(w)
 			m_Arena:SetBoundingBox(Min, Max)
 			m_Arena:SetSpectatorWarp(SpecWarp)
 			table.insert(Arenas, m_Arena)
@@ -52,10 +54,14 @@ function LoadKits()
 		if DoesKitExist(KitIniFile:GetKeyName(c)) == false then
 			local m_Kit = Kit:new()
 			m_Kit:SetName(KitIniFile:GetKeyName(c))
-			for i = 0, (KitIniFile:GetNumValues(c) - 1) / 2 do
+			local NumOfItems = 0
+			while KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(NumOfItems+1)) ~= 0 do NumOfItems = NumOfItems + 1 end
+			for i = 0, NumOfItems do
 				local itemID = KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(i+1))
 				local itemAmount = KitIniFile:GetValueI(m_Kit:GetName(), "amount" .. tostring(i+1))
-				
+				if itemAmount == 0 then
+					itemAmount = 1
+				end
 				for c = 1, itemAmount do
 					m_Kit:AddItem(itemID)
 				end
@@ -71,11 +77,6 @@ function CreateArena(Split, Player)
 		return true
 	end	
 
-	if Player:GetWorld():GetDimension() ~= dimOverworld then
-		Player:SendMessageInfo("Arenas cannot be created outside of the overworld!")
-		return true
-	end
-
 	if Split[3] == nil then
 		Player:SendMessageInfo("Usage: /mca create <name>")
 		return true
@@ -87,6 +88,18 @@ function CreateArena(Split, Player)
 	ArenaIniFile:DeleteKey(Split[3])
 	ArenaIniFile:AddKeyName(Split[3])
 	
+	if PlayerSelection[Player:GetName()] == nil then
+		Player:SendMessageInfo(cChatColor.Rose .. "Points pos1, pos2 or specpoint were not selected, please reselect the region.")
+		return true
+	end
+
+	if PlayerSelection[Player:GetName()]["select1"] == nil or
+	PlayerSelection[Player:GetName()]["select2"] == nil or
+	PlayerSelection[Player:GetName()]["spec"] == nil then
+		Player:SendMessageInfo(cChatColor.Rose .. "Points pos1, pos2 or specpoint were not selected, please reselect the region.")
+		return true
+	end
+
 	local Min = PlayerSelection[Player:GetName()]["select1"]
 	local Max = PlayerSelection[Player:GetName()]["select2"]
 	local Spec = PlayerSelection[Player:GetName()]["spec"]
@@ -107,6 +120,13 @@ function CreateArena(Split, Player)
 		Min.z = u
 	end
 
+	-- Check if the spectate point is in the arena.  We don't want that.
+	local CheckBox = cBoundingBox(Min.x, Max.x, Min.y, Max.y, Min.z, Max.z)
+	if CheckBox:IsInside(Vector3d(Spec)) then
+		Player:SendMessageInfo(cChatColor.Rose .. "The spectate teleport cannot be inside the arena!  Please reselect your region.")
+		return true	
+	end
+
 	ArenaIniFile:SetValue(Split[3], "MinX", Min.x)
 	ArenaIniFile:SetValue(Split[3], "MinY", Min.y)
 	ArenaIniFile:SetValue(Split[3], "MinZ", Min.z)
@@ -116,11 +136,14 @@ function CreateArena(Split, Player)
 	ArenaIniFile:SetValue(Split[3], "SpecX", Spec.x)
 	ArenaIniFile:SetValue(Split[3], "SpecY", Spec.y)
 	ArenaIniFile:SetValue(Split[3], "SpecZ", Spec.z)
+	ArenaIniFile:SetValue(Split[3], "World", Player:GetWorld():GetName())
 	
 	ArenaIniFile:WriteFile("Plugins/MCArena/arenas.ini")
 	LoadArenas()
 	
 	Player:SendMessageSuccess("Arena successfully created/modified!")
+
+	PlayerSelection[Player:GetName()] = nil
 
 	return true
 end
@@ -151,12 +174,30 @@ function RemovePlayer(Player)
 	end
 end
 
+function IsAnArenaAvaliable()
+	local a = false	
+	for n, l in pairs(Arenas) do
+		if l.Players[1] == nil then
+			a = true
+			break
+		end
+	end
+	return a
+end
+
 -- Dump all waiting players into the same randomly chosen arena and empty queue line
 function DumpQueueToArena()
-	local ArenaSelection = math.random(1, GetNumberOfArenas())
+	-- Are all arenas filled?		
+	if IsAnArenaAvaliable() == false then
+		return false
+	end
+
+	local ArenaSelection
+	repeat ArenaSelection = math.random(1, GetNumberOfArenas()) until Arenas[ArenaSelection]:IsAvaliable() == true
 	
 	for _, k in pairs(PlayerQueue) do
 		AddPlayerToArena(Arenas[ArenaSelection].Name, k)
 	end
 	PlayerQueue = {}
+	return true
 end

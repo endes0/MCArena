@@ -12,6 +12,7 @@ Arena = {
 
 -- Temporarily holds the Player's previous game data such as:
 -- health, XP, hunger, previous position.
+-- APlayer = ArenaPlayer
 APlayer = {
 	PreviousPosition = Vector3d(),
 	PreviousArmor = {},
@@ -20,7 +21,16 @@ APlayer = {
 	PreviousHealth = 0,
 	PreviousHunger = 0,
 	PreviousXP = 0,
-	KitName = ""
+	KitName = "",
+	PreviousWorld = ""
+}
+
+-- SPlayer = SpectatingPlayer
+SPlayer = {
+	Name = "",
+	PreviousPosition = Vector3d(),
+	Arena = "",
+	PreviousWorld = ""
 }
 
 -- A predefined "inventory" that is given to the player upon joining an arena
@@ -52,6 +62,13 @@ function APlayer:new()
 	o.PreviousHotbar = {}
 	setmetatable(o.PreviousHotbar, APlayer.PreviousHotbar)
 	self.PreviousHotbar.__index = self.PreviousHotbar
+	return o
+end
+
+function SPlayer:new()
+	local o = {}
+	setmetatable(o, APlayer)
+	self.__index = self
 	return o
 end
 
@@ -95,8 +112,19 @@ function Arena:SetName(NewName)
 	self.Name = NewName
 end
 
+function Arena:SetWorld(WorldName)
+	self.World = WorldName
+end
+
+function Arena:GetWorld()
+	return self.World
+end
+
 function Arena:KeepPlayersInBounds()
 	function ContainPlayer(Player)
+		if Player:GetWorld():GetName() ~= self:GetWorld() then
+			Player:MoveToWorld(self:GetWorld(), false)
+		end	
 		if self.BoundingBox:IsInside(Player:GetPosition()) == false then
 			Player:SetSpeed((Vector3d(self:GetCenter()) - Player:GetPosition()) * 2)
 		end
@@ -154,6 +182,16 @@ function Arena:AddPlayer(PlayerData)
 		until
 			self.BoundingBox:IsInside(vPos) == true or attempts > 64 
 
+		-- If the world that the arena resides in is NOT loaded, cancel and remove the player.
+		if cRoot:Get():GetWorld(self:GetWorld()) == nil then
+			RemovePlayer(Player)
+			return false
+		end
+
+		if Player:GetWorld():GetName() ~= self:GetWorld() then
+			Player:MoveToWorld(self:GetWorld(), false)
+		end
+
 		if attempts > 64 then
 			Player:TeleportToCoords(self:GetCenter().x, self:GetCenter().y, self:GetCenter().z)
 		else
@@ -174,6 +212,13 @@ function Arena:GetName()
 	return self.Name
 end
 
+function Arena:IsAvaliable()
+	if self.Players[1] ~= nil then		
+		return false
+	end
+	return true
+end
+
 function APlayer:CopyInfo(Player)
 	self.Name = Player:GetName()
 	self.PreviousPosition = CopyVector(Player:GetPosition())
@@ -190,6 +235,8 @@ function APlayer:CopyInfo(Player)
 	for e = 0, 8 do
 		self.PreviousHotbar[e] = CopycItem(Player:GetInventory():GetHotbarSlot(e))
 	end
+
+	self.PreviousWorld = Player:GetWorld():GetName()
 end
 
 function APlayer:RestoreInfo(Player)
@@ -197,7 +244,6 @@ function APlayer:RestoreInfo(Player)
 	Player:SetHealth(self.PreviousHealth)
 	Player:SetFoodLevel(self.PreviousHunger)
 	Player:SetCurrentExperience(self.PreviousXP)
-	Player:StopBurning()
 
 	for c = 0, 3 do
 		Player:GetInventory():SetArmorSlot(c, self.PreviousArmor[c])
@@ -208,6 +254,12 @@ function APlayer:RestoreInfo(Player)
 	for e = 0, 8 do
 		Player:GetInventory():SetHotbarSlot(e, self.PreviousHotbar[e])
 	end
+	if Player:GetWorld():GetName() ~= self.PreviousWorld then
+		Player:MoveToWorld(self.PreviousWorld, false)
+	end
+
+	Player:AddEntityEffect(12, 12, 5, 5)
+	Player:StopBurning()
 end
 
 function APlayer:AssignKit(KitName)
