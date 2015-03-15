@@ -36,7 +36,7 @@ Under the key name, add item tags like:
 * item1 = <some item>
 * item2 = <another item>
 
-Each item MUST have an amount specifier.  This is correct:
+Each item that you want to stack should have an amount specifier.  This is correct:
 
 * item1 = 137
 * amount1 = 16
