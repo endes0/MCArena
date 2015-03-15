@@ -40,6 +40,24 @@ function GetNumberInQueue()
 	return #PlayerQueue
 end
 
+function DoesArenaExist(ArenaName)
+	for _, k in pairs(Arenas) do
+		if k:GetName() == ArenaName then
+			return true
+		end
+	end
+	return false
+end
+
+function DoesKitExist(KitName)
+	for _, k in pairs(Kits) do
+		if k:GetName() == KitName then
+			return true
+		end
+	end
+	return false
+end
+
 -- Returns a reference to the requested arena object
 function GetArenaByName(ArenaName)
 	for _, k in pairs(Arenas) do
@@ -53,15 +71,26 @@ end
 -- Returns a reference of the requested kit object
 function GetKitByName(KitName)
 	for _, k in pairs(Kits) do
-		LOG(k:GetName())
 		if k:GetName() == KitName then
 			for n, l in pairs(k.Items) do
-				LOG(l)
 			end			
 			return k
 		end
 	end
 	return {}
+end
+
+-- Give selected kit to player
+function GiveKit(Player, KitName)	
+	local a_Kit = GetKitByName(KitName)	
+	Player:GetInventory():Clear()
+	for _, k in pairs(Kits) do
+		if k:GetName() == KitName then
+			for n, l in pairs(a_Kit.Items) do
+				Player:GetInventory():AddItem(cItem(l))
+			end
+		end
+	end
 end
 
 -- Not sure why I need this, but it seems to work...

@@ -66,16 +66,26 @@ function LoadKits()
 end
 
 function CreateArena(Split, Player)
-	ArenaIniFile:Clear()
-	ArenaIniFile:ReadFile("Plugins/MCArena/arenas.ini")
-	
-	if Split[2] == nil then
-		Player:SendMessageInfo("Usage: /createarena <name>")
+	if DoesPlayerHavePermissionToEdit(Player) == false then
+		Player:SendMessageInfo("You do not have permission to do that!")
+		return true
+	end	
+
+	if Player:GetWorld():GetDimension() ~= dimOverworld then
+		Player:SendMessageInfo("Arenas cannot be created outside of the overworld!")
 		return true
 	end
 
-	ArenaIniFile:DeleteKey(Split[2])
-	ArenaIniFile:AddKeyName(Split[2])
+	if Split[3] == nil then
+		Player:SendMessageInfo("Usage: /mca create <name>")
+		return true
+	end
+
+	ArenaIniFile:Clear()
+	ArenaIniFile:ReadFile("Plugins/MCArena/arenas.ini")
+
+	ArenaIniFile:DeleteKey(Split[3])
+	ArenaIniFile:AddKeyName(Split[3])
 	
 	local Min = PlayerSelection[Player:GetName()]["select1"]
 	local Max = PlayerSelection[Player:GetName()]["select2"]
@@ -97,15 +107,15 @@ function CreateArena(Split, Player)
 		Min.z = u
 	end
 
-	ArenaIniFile:SetValue(Split[2], "MinX", Min.x)
-	ArenaIniFile:SetValue(Split[2], "MinY", Min.y)
-	ArenaIniFile:SetValue(Split[2], "MinZ", Min.z)
-	ArenaIniFile:SetValue(Split[2], "MaxX", Max.x)
-	ArenaIniFile:SetValue(Split[2], "MaxY", Max.y)
-	ArenaIniFile:SetValue(Split[2], "MaxZ", Max.z)
-	ArenaIniFile:SetValue(Split[2], "SpecX", Spec.x)
-	ArenaIniFile:SetValue(Split[2], "SpecY", Spec.y)
-	ArenaIniFile:SetValue(Split[2], "SpecZ", Spec.z)
+	ArenaIniFile:SetValue(Split[3], "MinX", Min.x)
+	ArenaIniFile:SetValue(Split[3], "MinY", Min.y)
+	ArenaIniFile:SetValue(Split[3], "MinZ", Min.z)
+	ArenaIniFile:SetValue(Split[3], "MaxX", Max.x)
+	ArenaIniFile:SetValue(Split[3], "MaxY", Max.y)
+	ArenaIniFile:SetValue(Split[3], "MaxZ", Max.z)
+	ArenaIniFile:SetValue(Split[3], "SpecX", Spec.x)
+	ArenaIniFile:SetValue(Split[3], "SpecY", Spec.y)
+	ArenaIniFile:SetValue(Split[3], "SpecZ", Spec.z)
 	
 	ArenaIniFile:WriteFile("Plugins/MCArena/arenas.ini")
 	LoadArenas()
@@ -113,24 +123,6 @@ function CreateArena(Split, Player)
 	Player:SendMessageSuccess("Arena successfully created/modified!")
 
 	return true
-end
-
-function DoesArenaExist(ArenaName)
-	for _, k in pairs(Arenas) do
-		if k:GetName() == ArenaName then
-			return true
-		end
-	end
-	return false
-end
-
-function DoesKitExist(KitName)
-	for _, k in pairs(Kits) do
-		if k:GetName() == KitName then
-			return true
-		end
-	end
-	return false
 end
 
 function AddPlayerToArena(ArenaName, PlayerData)

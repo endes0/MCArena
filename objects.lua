@@ -91,7 +91,6 @@ function Arena:KeepPlayersInBounds()
 	function ContainPlayer(Player)
 		if self.BoundingBox:IsInside(Player:GetPosition()) == false then
 			Player:SetSpeed((Vector3d(self:GetCenter()) - Player:GetPosition()) * 2)
-			Player:SendMessage("You cannot leave the arena while in battle!")
 		end
 	end
 
@@ -99,7 +98,7 @@ function Arena:KeepPlayersInBounds()
 		cRoot:Get():FindAndDoWithPlayer(a_Player.Name, ContainPlayer)
 	end
 
-	if self:GetNumberOfPlayers() <= 1 then
+	if self:GetNumberOfPlayers() <= 0 then
 		for _, k in pairs(self.Players) do
 			cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
 				Player:SendMessageSuccess(cChatColor.Gold .. "You have claimed victory!")
@@ -132,7 +131,27 @@ function Arena:AddPlayer(PlayerData)
 		Player:Feed(20, 1337)
 		Player:SetCurrentExperience(0)
 		Player:GetInventory():Clear()
-		Player:TeleportToCoords(self:GetCenter().x, self:GetCenter().y, self:GetCenter().z)
+
+		local X, Z
+		
+		local attempts = 0
+		local vPos = Vector3d()
+
+		repeat
+			local X = math.random(self:GetCenter().x - 4, self:GetCenter().x + 4)
+			local Z = math.random(self:GetCenter().z - 4, self:GetCenter().z + 4)
+
+			local bool, Y = Player:GetWorld():TryGetHeight(X, Z)
+			vPos = Vector3d(X, Y, Z)
+			attempts = attempts + 1
+		until
+			self.BoundingBox:IsInside(vPos) == true or attempts > 64 
+
+		if attempts > 64 then
+			Player:TeleportToCoords(self:GetCenter().x, self:GetCenter().y, self:GetCenter().z)
+		else
+			Player:TeleportToCoords(vPos.x, vPos.y, vPos.z)
+		end
 
 		-- Give assigned kit
 		GiveKit(Player, PlayerData.Kit)

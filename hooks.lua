@@ -110,3 +110,11 @@ function OnKilling(Victim, Killer)
 		end
 	end
 end
+
+function OnExecuteCommand(Player, Command)
+	if IsPlayerInArena(Player) == true then
+		Player:SendMessageWarning(cChatColor.Red .. "You may not use commands during combat!")		
+		LOG("Explanation: Player " .. Player:GetName() .. " is not allowed to execute commands while in an arena.")
+		return true
+	end
+end
