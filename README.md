@@ -15,12 +15,12 @@ This is almost exactly the same as WorldEdit.
 The defined cuboid will be the area of the arena.
 
 Afterwards, do:
-# /createarena <NAME>
+* /mca create <NAME>
 
 The arena will automatically set itself up.
 
 Use the following to join the arena
-# /joinarena <KIT NAME>
+* /mca join <KIT NAME>
 
 You must also be an Admin or have the mcarena.create permission to create these arenas.
 
@@ -33,20 +33,20 @@ Add a key entry.  This will become the kit name.
 
 Under the key name, add item tags like:
 
-# item1 = <some item>
-# item2 = <another item>
+* item1 = <some item>
+* item2 = <another item>
 
 Each item MUST have an amount specifier.  This is correct:
 
-# item1 = 137
-# amount1 = 16
+* item1 = 137
+* amount1 = 16
 
 This gives 16 command blocks on arena entry.
 
-Example kit - 
+Example kit:
 
 [Archer]
-item1=261
-amount1=1
-item2=262
-amount2=64
+*item1=261
+*amount1=1
+*item2=262
+*amount2=64
