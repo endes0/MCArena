@@ -57,7 +57,7 @@ end
 function PlayerJoinArena(Split, Player)
 	if IsPlayerInQueue(Player) == true then
 		Player:SendMessageInfo("You're already in the queue!")
-		--return true
+		return true
 	end
 
 	if Player:GetWorld():GetDimension() ~= dimOverworld then
