@@ -1,5 +1,5 @@
 # MCArena
-A kit PvP plugin for MCServer (In Beta)
+A kit PvP plugin for MCServer (Release 1.0)
 
 A plugin for MCServer that adds arena-like functionality.
 Currently in heavy development and beta state, this plugin is NOT recommended for non-dedicated use.
@@ -42,3 +42,7 @@ Each item MUST have an amount specifier.  This is correct:
 * amount1 = 16
 
 This will give 16 Command Blocks to the player under that kit on entry.
+
+For further documentation, refer to this:  
+
+https://github.com/DevToaster/MCArena/blob/master/Info.lua
