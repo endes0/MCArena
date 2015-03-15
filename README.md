@@ -7,20 +7,20 @@ Player inventories are NOT saved between arena matches.  Take this into consider
 
 #CREATING AN ARENA
 Use the golden pickaxe to edit your arenas.
-Left Click = First position
-Right Click = Second position
-Shift+Click = Spectator teleport position
+  *Left Click = First position
+  *Right Click = Second position
+  *Shift+Click = Spectator teleport position
 
 This is almost exactly the same as WorldEdit.
 The defined cuboid will be the area of the arena.
 
 Afterwards, do:
-* /mca create <NAME>
+* /mca create {NAME}
 
 The arena will automatically set itself up.
 
 Use the following to join the arena
-* /mca join <KIT NAME>
+* /mca join {KIT NAME}
 
 You must also be an Admin or have the mcarena.create permission to create these arenas.
 
