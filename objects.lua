@@ -138,7 +138,7 @@ function Arena:KeepPlayersInBounds()
 		cRoot:Get():FindAndDoWithPlayer(a_Player.Name, ContainPlayer)
 	end
 
-	if self:GetNumberOfPlayers() <= 0 then
+	if self:GetNumberOfPlayers() <= 1 - (DebugMode and 1 or 0) then
 		for _, k in pairs(self.Players) do
 			cRoot:Get():FindAndDoWithPlayer(k.Name, function(Player)
 				Player:SendMessageSuccess(cChatColor.Gold .. "You have claimed victory!")

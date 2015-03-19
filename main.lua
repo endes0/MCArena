@@ -1,13 +1,28 @@
 -- Plugin Options
 -- I figured it would be less of a hassle for both me and you to directly put a config here ;)
 
+-- //////////////////////////////////////////////////////////////////////////////////////////////////////////
 -- This value keeps unwanted players out of the arena.  These options are NOT Raspberry Pi first-gen friendly
 -- as it does a bunch of table cycles very often.
+-- //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+-- Keeps players out of occupied arenas unless the player is an Admin
 KeepPlayersOutUnlessPlaying = true
+
+-- Protect blocks that make up the arenas
 AutoProtectArenaBlocks = true
 
+-- //////////////////////////////////////////////////////////////////////////////////
+-- These options are able to be used with the Raspberry Pi with no performance impact
+-- //////////////////////////////////////////////////////////////////////////////////
+
+-- Allows players to join the queue more than once and won't kick them out of the arena even if they are the only ones
+-- occupying it.  This option is used to test the features of arenas and queues and stuff
+DebugMode = false
+
+-- ////////////////////
 -- End of inline config
+-- ////////////////////
 
 PLUGIN = nil
 local clock = os.clock
@@ -94,8 +109,10 @@ function PlayerJoinArena(Split, Player)
 	end
 
 	if IsPlayerInQueue(Player) == true then
-		Player:SendMessageInfo(cChatColor.Gold .. "You're already in the queue!")
-		--return true
+		if DebugMode == false then		
+			Player:SendMessageInfo(cChatColor.Gold .. "You're already in the queue!")
+			return true
+		end
 	end
 
 	-- No arena defined
