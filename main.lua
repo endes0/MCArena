@@ -24,7 +24,7 @@ DebugMode = false
 PeacefulMode = false
 
 -- Defines the distance that the players in spectate can move before being teleported back to the initial spectate point
-SpectateMoveRadius = 4
+SpectateMoveRadius = 8
 
 -- ////////////////////
 -- End of inline config
@@ -35,7 +35,7 @@ local clock = os.clock
 
 local Name = "MCArena Release"
 local VersionMajor = 1
-local VersionMinor = 0
+local VersionMinor = 1
 
 function Initialize(Plugin)
 	Plugin:SetName(Name)
