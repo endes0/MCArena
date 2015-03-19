@@ -55,15 +55,16 @@ function LoadKits()
 			local m_Kit = Kit:new()
 			m_Kit:SetName(KitIniFile:GetKeyName(c))
 			local NumOfItems = 0
-			while KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(NumOfItems+1)) ~= 0 do NumOfItems = NumOfItems + 1 end
-			for i = 0, NumOfItems do
-				local itemID = KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(i+1))
-				local itemAmount = KitIniFile:GetValueI(m_Kit:GetName(), "amount" .. tostring(i+1))
-				if itemAmount == 0 then
-					itemAmount = 1
-				end
-				for c = 1, itemAmount do
-					m_Kit:AddItem(itemID)
+			while KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(NumOfItems+1)) ~= 0 do NumOfItems = NumOfItems + 1 
+				for i = 0, NumOfItems do
+					local itemID = KitIniFile:GetValueI(m_Kit:GetName(), "item" .. tostring(i+1))
+					local itemAmount = KitIniFile:GetValueI(m_Kit:GetName(), "amount" .. tostring(i+1))
+					if itemAmount == 0 then
+						itemAmount = 1
+					end
+					for c = 1, itemAmount do
+						m_Kit:AddItem(itemID)
+					end
 				end
 			end
 			table.insert(Kits, m_Kit)
