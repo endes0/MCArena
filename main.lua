@@ -39,6 +39,7 @@ function Initialize(Plugin)
 	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_DESTROYED, OnPlayerDestroyed)
 	cPluginManager:AddHook(cPluginManager.HOOK_EXPLODING, OnExploding)
 	cPluginManager:AddHook(cPluginManager.HOOK_TAKE_DAMAGE, OnTakeDamage)
+	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_DESTROYED, OnPlayerDestroyed)
 
 	-- Seems to be broken
 	--cPluginManager:AddHook(cPluginManager.HOOK_ENTITY_TELEPORT, OnEntityTeleport)
@@ -94,7 +95,7 @@ function PlayerJoinArena(Split, Player)
 
 	if IsPlayerInQueue(Player) == true then
 		Player:SendMessageInfo(cChatColor.Gold .. "You're already in the queue!")
-		return true
+		--return true
 	end
 
 	-- No arena defined
@@ -159,9 +160,10 @@ function PlayerSpectateArena(Split, Player)
 	end
 
 	Player:SendMessageInfo(cChatColor.LightBlue .. "Spectating arena " .. cChatColor.LightGreen .. Split[3])
-	local SpecCoords = GetArenaByName(Split[3]):GetCenter()
+	local SpecCoords = GetArenaByName(Split[3]):GetSpecCoords()
 	Player:MoveToWorld(GetArenaByName(Split[3]):GetWorld())
-	Player:TeleportToCoords(SpecCoords.x, SpecCoords.y, SpecCoords.z)
+	Player:TeleportToCoords(SpecCoords.x, SpecCoords.y + 1, SpecCoords.z)
+	Player:SetCanFly(true)
 	return true
 end
 
@@ -174,6 +176,7 @@ function LeaveSpectate(Split, Player)
 				Player:TeleportToCoords(tp.x, tp.y, tp.z)
 				table.remove(PlayersInSpectate, _)
 				Player:SendMessage(cChatColor.LightGreen .. "Leaving spectator mode")
+				Player:SetCanFly(false)
 				return true
 			end
 		end

@@ -20,6 +20,7 @@ function IsPlayerInQueue(Player)
 	return false
 end
 
+-- Is Player in spectate mode?
 function IsPlayerInSpectate(Player)
 	for _, k in pairs(PlayersInSpectate) do
 		if k.Name == Player:GetName() then
@@ -96,6 +97,7 @@ function GiveKit(Player, KitName)
 	for _, k in pairs(Kits) do
 		if k:GetName() == KitName then
 			for n, l in pairs(a_Kit.Items) do
+				-- If the kit has armor in it, auto-equip it				
 				if IsHelmet(l) then
 					Player:GetInventory():SetArmorSlot(0, cItem(l))
 				elseif IsChestplate(l) then

@@ -59,10 +59,11 @@ function OnPlayerMoving(Player, OldPos, NewPos)
 				SArena = k.Arena
 			end
 		end
-		local SpecPos = Vector3d(GetArenaByName(SArena):GetCenter())
+		local SpecPos = Vector3d(GetArenaByName(SArena):GetSpecCoords())
 		if distance(NewPos, SpecPos) > 8 then
-			Player:TeleportToCoords(SpecPos.x, SpecPos.y, SpecPos.z)
+			Player:TeleportToCoords(SpecPos.x, SpecPos.y + 1, SpecPos.z)
 			Player:SendMessageInfo(cChatColor.Rose .. "You have wandered off too far!")
+			return true
 		end
 	end	
 
@@ -196,20 +197,61 @@ function OnKilling(Victim, Killer)
 end
 
 function OnExecuteCommand(Player, Command)
-	if IsPlayerInArena(Player) == true then
-		Player:SendMessageWarning(cChatColor.Red .. "You may not use commands during combat!")		
-		LOG("Explanation: Player " .. Player:GetName() .. " is not allowed to execute commands while in an arena.")
-		return true
+	if Player ~= nil then	
+		if IsPlayerInArena(Player) == true then
+			Player:SendMessageWarning(cChatColor.Red .. "You may not use commands during combat!")		
+			LOG("Explanation: Player " .. Player:GetName() .. " is not allowed to execute commands while in an arena.")
+			return true
+		end
 	end
+end
+
+function OnPlayerDestroyed(Player)
+	for _, k in pairs(Arenas) do
+		for n, l in pairs(k.Players) do
+			if Player:GetName() == l.Name then
+				table.remove(k.Players, n)
+				LOG("Player " .. Player:GetName() .. " has logged out during combat!, inventory items were lost!")
+				Player:GetInventory():Clear()
+				return true
+			end
+		end
+	end
+
+	for _, k in pairs(PlayersInSpectate) do
+		if Player:GetName() == k.Name then
+			table.remove(PlayersInSpectate, _)
+			LOG("Player " .. Player:GetName() .. " has logged out in spectate mode!")
+			return true
+		end
+	end
+	PlayerSelection[Player:GetName()] = nil
 end
 
 function OnPlayerSpawned(Player)
 	for _, k in pairs(Arenas) do
 		if k.BoundingBox:IsInside(Player:GetPosition()) == true and
 		k:GetWorld() == Player:GetWorld():GetName() then
-			local NewPos = Player:GetLastBedPos()
 			Player:MoveToWorld(cRoot:Get():GetDefaultWorld():GetName(), false)
-			Player:TeleportToCoords(NewPos.x, NewPos.y, NewPos.z)
+
+			Player:TeleportToCoords(cRoot:Get():GetDefaultWorld():GetSpawnX(), 
+				cRoot:Get():GetDefaultWorld():GetSpawnY(), 
+				cRoot:Get():GetDefaultWorld():GetSpawnZ())
+
+			Player:SendMessageWarning(cChatColor.Red .. "You cannot relog in an arena!")
+		end
+		if distance(k:GetSpecCoords(), Player:GetPosition()) <= 4 then
+			Player:MoveToWorld(cRoot:Get():GetDefaultWorld():GetName(), false)
+
+			Player:TeleportToCoords(cRoot:Get():GetDefaultWorld():GetSpawnX(), 
+				cRoot:Get():GetDefaultWorld():GetSpawnY(), 
+				cRoot:Get():GetDefaultWorld():GetSpawnZ())
+
+			if Player:GetGameMode() == 0 then
+				Player:SetCanFly(false)
+			end
+
+			Player:SendMessageWarning(cChatColor.Rose .. "You cannot relog in spectate mode!")
 		end
 	end
 end
@@ -223,10 +265,6 @@ function OnEntityTeleport(Entity, OldPosition, NewPosition)
 		end
 	end
 	return false
-end
-
-function OnPlayerDestroyed(Player)
-	PlayerSelection[Player:GetName()] = nil
 end
 
 function OnExploding(World, ExplosionSize, CanCauseFire, X, Y, Z, Source, SourceData)
