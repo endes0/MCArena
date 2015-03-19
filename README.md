@@ -1,5 +1,5 @@
 # MCArena
-A kit PvP plugin for MCServer (Release 1.0)
+A kit PvP plugin for MCServer (Release 1.1)
 
 A plugin for MCServer that adds arena-like functionality.
 Currently in heavy development and beta state, this plugin is NOT recommended for non-dedicated use.
