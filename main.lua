@@ -20,6 +20,9 @@ AutoProtectArenaBlocks = true
 -- occupying it.  This option is used to test the features of arenas and queues and stuff
 DebugMode = false
 
+-- Disallows PvP outside of arenas
+PeacefulMode = false
+
 -- ////////////////////
 -- End of inline config
 -- ////////////////////

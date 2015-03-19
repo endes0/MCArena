@@ -154,6 +154,16 @@ function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, Action)
 end
 
 function OnTakeDamage(Entity, TDI)
+	if PeacefulMode == true then
+		if Entity:IsPlayer() == true then
+			if IsPlayerInArena(Entity) == true then
+				return false
+			else
+				return true
+			end
+		end
+	end
+
 	if Entity:IsPlayer() == true then
 		if IsPlayerInSpectate(Entity) == true then
 			TDI.FinalDamage = 0
