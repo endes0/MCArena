@@ -156,10 +156,14 @@ end
 function OnTakeDamage(Entity, TDI)
 	if PeacefulMode == true then
 		if Entity:IsPlayer() == true then
-			if IsPlayerInArena(Entity) == true then
-				return false
-			else
-				return true
+			if TDI.Attacker ~= nil then
+				if TDI.Attacker:IsPlayer() == true then
+					if IsPlayerInArena(Entity) == true then
+						return false
+					else
+						return true
+					end
+				end
 			end
 		end
 	end
