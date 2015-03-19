@@ -60,7 +60,7 @@ function OnPlayerMoving(Player, OldPos, NewPos)
 			end
 		end
 		local SpecPos = Vector3d(GetArenaByName(SArena):GetSpecCoords())
-		if distance(NewPos, SpecPos) > 8 then
+		if distance(NewPos, SpecPos) > SpectateMoveRadius then
 			Player:TeleportToCoords(SpecPos.x, SpecPos.y + 1, SpecPos.z)
 			Player:SendMessageInfo(cChatColor.Rose .. "You have wandered off too far!")
 			return true
@@ -254,7 +254,7 @@ function OnPlayerSpawned(Player)
 
 			Player:SendMessageWarning(cChatColor.Red .. "You cannot relog in an arena!")
 		end
-		if distance(k:GetSpecCoords(), Player:GetPosition()) <= 4 then
+		if distance(k:GetSpecCoords(), Player:GetPosition()) <= SpectateMoveRadius then
 			Player:MoveToWorld(cRoot:Get():GetDefaultWorld():GetName(), false)
 
 			Player:TeleportToCoords(cRoot:Get():GetDefaultWorld():GetSpawnX(), 

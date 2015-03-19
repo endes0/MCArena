@@ -1,10 +1,10 @@
 -- Plugin Options
 -- I figured it would be less of a hassle for both me and you to directly put a config here ;)
 
--- //////////////////////////////////////////////////////////////////////////////////////////////////////////
--- This value keeps unwanted players out of the arena.  These options are NOT Raspberry Pi first-gen friendly
--- as it does a bunch of table cycles very often.
--- //////////////////////////////////////////////////////////////////////////////////////////////////////////
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-- This value keeps unwanted players out of the arena.  These options are NOT optimal on Raspberry Pi first-gens
+-- as they do a bunch of table cycles very often.
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 -- Keeps players out of occupied arenas unless the player is an Admin
 KeepPlayersOutUnlessPlaying = true
@@ -22,6 +22,9 @@ DebugMode = false
 
 -- Disallows PvP outside of arenas
 PeacefulMode = false
+
+-- Defines the distance that the players in spectate can move before being teleported back to the initial spectate point
+SpectateMoveRadius = 4
 
 -- ////////////////////
 -- End of inline config
