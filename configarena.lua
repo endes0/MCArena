@@ -8,10 +8,15 @@ PlayerQueue = {}
 
 QueueWaiting = false
 
+local ArenasFile = ""
+local KitsFile = ""
+
 function LoadArenas()
-	if ArenaIniFile:ReadFile("Plugins/MCArena/arenas.ini") == false then
+	ArenasFile = ConfigFolder .. "/arenas.ini"
+
+	if ArenaIniFile:ReadFile(ArenasFile) == false then
 		LOG("Arena config file does not exist or is empty, generating a new one")
-		ArenaIniFile:WriteFile("Plugins/MCArena/arenas.ini")
+		ArenaIniFile:WriteFile(ArenasFile)
 	end
 
 	for c = 0, ArenaIniFile:GetNumKeys() - 1 do
@@ -40,13 +45,14 @@ function LoadArenas()
 end
 
 function LoadKits()
-	if KitIniFile:ReadFile("Plugins/MCArena/kits.ini") == false then
+	KitsFile = ConfigFolder .. "/kits.ini"
+	if KitIniFile:ReadFile(KitsFile) == false then
 		LOG("Kit config file does not exist or is empty, generating a new one")
 		-- If no kits exist, this function creates default kit
 		KitIniFile:AddKeyName("default")
 		KitIniFile:SetValueI("default", "item1", E_ITEM_DIAMOND_SWORD, true)
 		KitIniFile:SetValueI("default", "amount1", 1, true)
-		KitIniFile:WriteFile("Plugins/MCArena/kits.ini")
+		KitIniFile:WriteFile(KitsFile)
 		-- End default kit
 	end
 
@@ -84,7 +90,7 @@ function CreateArena(Split, Player)
 	end
 
 	ArenaIniFile:Clear()
-	ArenaIniFile:ReadFile("Plugins/MCArena/arenas.ini")
+	ArenaIniFile:ReadFile(ArenasFile)
 
 	ArenaIniFile:DeleteKey(Split[3])
 	ArenaIniFile:AddKeyName(Split[3])
@@ -139,7 +145,7 @@ function CreateArena(Split, Player)
 	ArenaIniFile:SetValue(Split[3], "SpecZ", Spec.z)
 	ArenaIniFile:SetValue(Split[3], "World", Player:GetWorld():GetName())
 	
-	ArenaIniFile:WriteFile("Plugins/MCArena/arenas.ini")
+	ArenaIniFile:WriteFile(ArenasFile)
 	LoadArenas()
 	
 	Player:SendMessageSuccess("Arena successfully created/modified!")

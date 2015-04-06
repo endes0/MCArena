@@ -63,7 +63,6 @@ function OnPlayerMoving(Player, OldPos, NewPos)
 		if distance(NewPos, SpecPos) > SpectateMoveRadius then
 			Player:TeleportToCoords(SpecPos.x, SpecPos.y + 1, SpecPos.z)
 			Player:SendMessageInfo(cChatColor.Rose .. "You have wandered off too far!")
-			return true
 		end
 	end	
 
@@ -268,17 +267,6 @@ function OnPlayerSpawned(Player)
 			Player:SendMessageWarning(cChatColor.Rose .. "You cannot relog in spectate mode!")
 		end
 	end
-end
-
-function OnEntityTeleport(Entity, OldPosition, NewPosition)
-	for _, k in pairs(Arenas) do
-		if k.BoundingBox:IsInside(NewPosition) == true and
-		k:IsAvaliable() == false and
-		k:GetWorld() == Entity:GetWorld():GetName() then
-			return true
-		end
-	end
-	return false
 end
 
 function OnExploding(World, ExplosionSize, CanCauseFire, X, Y, Z, Source, SourceData)

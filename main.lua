@@ -31,16 +31,26 @@ SpectateMoveRadius = 8
 -- ////////////////////
 
 PLUGIN = nil
+PluginFolder = ""
+ConfigFolder = ""
 local clock = os.clock
 
 local Name = "MCArena Release"
 local VersionMajor = 1
-local VersionMinor = 1
+local VersionMinor = 2
 
 function Initialize(Plugin)
 	Plugin:SetName(Name)
 	Plugin:SetVersion(VersionMajor)
+
+	PluginFolder = Plugin:GetLocalFolder()
+	ConfigFolder = PluginFolder .. "/config"
 	
+	if cFile:IsFolder(ConfigFolder) == false then
+		LOG("Config folder does not exist!  Creating directory 'config'...")
+		cFile:CreateFolder(ConfigFolder)
+	end
+
 	-- Load config
 	
 	-- Set up random number generator
